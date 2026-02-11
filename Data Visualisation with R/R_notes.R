@@ -81,3 +81,112 @@ plot(bsl_data)
 barplot(bsl_data)
 
 #----------------------------
+
+# Loops & Conditions
+
+even_num <- seq(0, 10, 2)
+print(even_num)
+
+for (i in even_num ){
+  print(i)
+  Sys.sleep(2)
+  print("i am awake now, let's move to next number!")
+  
+}
+
+
+my_new_seq <- c(seq(23,87,5), seq(2,47,5))
+
+for (i in my_new_seq) {
+  if (i%%2 == 0) {
+    print(paste0(i, ' is an even number!'))
+  }else{
+    print(paste0(i,' is an odd number!'))
+  }
+  
+}
+
+#----------------------------
+
+# Functions
+
+# my_gene <- "GCGCATATTATTAGCGCTAGCTTGC"
+# my_gene <- strsplit(x=my_gene,split = '')[[1]]
+# print(my_gene)
+
+#for (ntd in my_gene){
+ # Sys.sleep(3)
+  #print(ntd)
+ 
+#}
+
+
+GC_calculator <- function(input_gene){ # function
+  counter = 0
+  input_gene <- strsplit(x=input_gene, split = '')[[1]] # split the string
+  
+  for (ntd in input_gene) { # for loop
+    if (ntd == 'G'| ntd == 'C'){
+      counter <- counter + 1
+    }
+  }
+  return ((counter/length(input_gene))*100)
+}
+
+gene <- "GCGCATATTATTAGCGCCCCCGGGTAGCTTGC"
+GC_calculator(gene)
+
+# ----------------------------------------------------------------------
+
+fileOnMyPc <- 'E:/Data-Visualization-In-Bio-HackBio-Internship/Data Visualisation with R/bacteria.csv'
+bacteria <- read.delim(fileOnMyPc, header = T, sep = ',')
+
+View(bacteria)
+
+# Understanding the Columns
+# C1,C2 = PCA coordinates
+
+# sample_id = unique identifier
+
+# species = bacterial
+
+# isolation_origin = source of the sample (urine[samples taken from UTIs], blood[isolates from bloodstream infections],
+#feces[collected from stool samples that are either pathogenic or harmless], animal[isolates from non-human hosts they are often studies to undersatnd the zoonotic transmission(spread between animal and humans)])
+
+# phenotype = either pathogenic(harmful) or commensal (harmless)
+
+# BSL = biosafety level[how dangerous is to handle the strain in the lab]
+
+# soln =  solution concentration
+
+# fit values [Likely resistance/susceptibility to carbapenems, ciprofloxacin, gentamicin, kanamycin, piperacillin.] = how well the bacteria grew or survived under antibiotic exposure (higher = most resistant)
+
+# labels = could be cluster IDS or machine learning classification labels
+
+# ----------------------------------------------------------------------
+
+# Which sample sources are most represented, and does the dataset
+#lean toward clinical infections [urine, blood] or environmental/commensal origins[animal, feces]?
+
+isolation_origin_freq <- table (bacteria$Isolation.origin)
+print(isolation_origin_freq)
+
+
+# Categorical Plots
+
+barplot(height = isolation_origin_freq, 
+        width = c(1,1,1,1),
+        names.arg = c('Animal', 'Blood', 'Feces', 'Urine'),
+        legend = F,
+        las = 1,
+        ylim = c(0,20),
+        col = c(0:3),
+        main = "Distribution of E. coli Isolates by Source", # Heading 
+        xlab = "Isolation Origin", # X-axis label
+        ylab = "Number of Samples"
+        )
+
+# insight from barplot
+# - animal isolates dominates -> this suggests that data lean heavily towards zoonotic surveillance, It is not purely clinical.
+# - urine and blood samples are too significant -> it means dataset has strong medical relevance too
+# - feces isolated are least represented -> gut commensal strains are present but not main focus
