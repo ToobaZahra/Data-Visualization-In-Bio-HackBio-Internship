@@ -174,19 +174,44 @@ print(isolation_origin_freq)
 
 # Categorical Plots
 
-barplot(height = isolation_origin_freq, 
-        width = c(1,1,1,1),
-        names.arg = c('Animal', 'Blood', 'Feces', 'Urine'),
-        legend = F,
-        las = 1,
-        ylim = c(0,20),
-        col = c(0:3),
-        main = "Distribution of E. coli Isolates by Source", # Heading 
-        xlab = "Isolation Origin", # X-axis label
-        ylab = "Number of Samples"
-        )
+barplot(height=isolation_origin_freq, # what to plot
+        width = c(1,1,1,1), # width of each bar
+        names.arg = c('Animal','Blood','Feces','Urine'), # names on x-axis
+        legend = F, # labels
+        las = 1, # names on x-axis in vertical direction
+        ylim = c(0,20), # values on y-axis would be from 0-20
+        col = c(0:3), # color of bars
+        main = "Distribution of E. coli Isolates by Source", # heading
+        xlab = "Isolation origin", # X-axis label
+        ylab = "Number of Samples" # Y-axis labels
+)
 
 # insight from barplot
 # - animal isolates dominates -> this suggests that data lean heavily towards zoonotic surveillance, It is not purely clinical.
 # - urine and blood samples are too significant -> it means dataset has strong medical relevance too
 # - feces isolated are least represented -> gut commensal strains are present but not main focus
+
+# Pie chart
+pie(isolation_origin_freq,
+    col = c(0:3), # colors
+    labels  = c('Animal','Blood','Feces','Urine'),
+    radius = 1, 
+    clockwise = T,# direction
+    lty = 3 # dotted boundary
+    
+)
+
+# ----------------------------------------------------------------------
+
+# ggplot
+
+install.packages("ggplot2")
+install.packages("dplyr", dependencies = TRUE)
+install.packages("tidyverse")
+
+remove.packages("rlang")
+install.packages("rlang")
+library(ggplot2)
+library(dplyr)
+
+
