@@ -207,11 +207,188 @@ pie(isolation_origin_freq,
 
 install.packages("ggplot2")
 install.packages("dplyr", dependencies = TRUE)
-install.packages("tidyverse")
 
 remove.packages("rlang")
 install.packages("rlang")
 library(ggplot2)
 library(dplyr)
 
+# ----------------------------------------------------------------------
 
+# boxplot
+boxplot(x = bacteria$carb_fit,
+        notch = T,
+        main = "My First Boxplot",
+        ylim = c(0,1.5),
+        ylab = 'Fitness',
+        xlab = "Carbenicillin",
+        col = 3
+)
+
+# biological insight
+# Median line is around 1, most isolates have fitness around 1
+# whiskers go from ~0.2 to ~1.5, some isolates grow poorly, some grow very well
+# the box is wide(IQR), there is variability among isolates
+
+# ----------------------------------------------------------------------
+
+# Density plot
+
+plot(density(x=bacteria$carb_fit))
+
+# Biological Insight
+# The carb_fit show a biomodal distribution, suggesting the presence of two distinct sub populations with different exposure to Carbenicillin exposure.
+# Peak 1 (~0.4-0.5) : likely represent --> Carbenicillin-sensitive isolated, reduced growth under antibiotic stress
+# Peak 2 (~1.1-1.2) : likely represent --> resistant isolates, able to maintain/increase growth
+
+# ----------------------------------------------------------------------
+
+# Scatter plot
+plot(x=bacteria$C1,
+     y=bacteria$C2,
+     xlim = c(0,10),
+     ylim = c(0,10),
+     xlab = 'PCA1',
+     ylab = 'PCA2',
+     main = 'PCA Plot',
+     las = 1,
+     col = as.factor(bacteria$labels),
+     pch = 19,
+     cex = 0.8
+     )
+
+# Heatmap
+library(pheatmap)
+
+pheatmap(mat = bacteria[,8:13],
+         border_color = 'black',
+         legend = T,
+         labels_row = bacteria$sample_id,
+         fontsize_row = 4,
+         cluster_cols = T,
+         cluster_rows = T
+         )
+# ----------------------------------------------------------------------
+
+#ggplot
+
+#BOXPLOT
+
+library(ggplot2)
+ggplot(bacteria,
+       aes(x="Carbenicillin", y=carb_fit))+
+       geom_boxplot(notch=TRUE, fill='lightgray')+
+       labs(
+         x='',
+         y="Fitness",
+         title = "Distribution of Carbenicillin Fitness"
+       )+
+         theme_minimal()
+       
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#DENSITY PLOT
+
+ggplot(bacteria,
+       aes(x=carb_fit))+
+  geom_density(fill='steelblue',alpha=0.5)+
+  labs(
+    x='Fitness',
+    y='Density',
+    title = 'Density of Carbenicillin Fitness'
+  )+
+  theme_minimal()
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# BOXPLOT by category
+# By Isolation origin
+
+ggplot(bacteria,
+       aes(x=Isolation.origin, y=carb_fit))+
+  geom_boxplot()+
+  labs(
+    x = "Isolation Origin",
+    y = "Fitness",
+    title = "Fitness by Isolation Origin"
+  )+
+  theme_minimal()
+
+
+#By Phenotype
+
+ggplot(bacteria,
+       aes(x=Phenotype, y=carb_fit))+
+  geom_boxplot()+
+  labs(
+    x = 'Phenotype',
+    y = 'Fitness',
+    title = "Fitness by Phenotype"
+  )+
+  theme_minimal()
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# SCATTER PLOT
+
+ggplot(bacteria,
+       aes(x=C1,y=C2))+
+  geom_point()+
+  labs(
+    x='C1',
+    y='C2',
+    title = 'Scatter Plot of C1 vs C2'
+  )+
+  theme_minimal()
+
+
+# PCA-style scatter with color labels
+
+ggplot(bacteria,
+       aes(x=C1, y=C2, color = as.factor(labels)))+
+  geom_point(size = 1, alpha = 0.7)+
+  coord_cartesian(xlim = c(0,10), ylim = c(0,10))+
+  labs(
+    x = 'PC1',
+    y = 'PC2',
+    color = "Label",
+    title = "PC Plot"
+  )+
+  theme_minimal()
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#Heatmap
+
+
+
+install.packages('vctrs')
+install.packages('tidyr')
+install.packages("tidyverse")
+install.packages('dplyr')
+
+library(tidyverse)
+
+#Step 1: Reshape data
+heatmap_df <- bacteria%>%
+  select(sample_id,8:13)%>%
+  pivot_longer(
+    cols = -sample_id,
+    names_to = "Variable",
+    values_to = 'Value'
+  )
+
+
+# Step 2: Plot
+
+ggplot(heatmap_df,
+       aes(x= Variable, y= sample_id, fill= Value))+
+  geom_tile(color="black")+
+  scale_fill_gradient(low="white", high="red")+
+  labs(
+    x="",
+    y="",
+    title="Heatmap of Selected Features"
+  )+
+  theme_minimal()+
+  theme(axis.text.y= element_text(size=6))
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
