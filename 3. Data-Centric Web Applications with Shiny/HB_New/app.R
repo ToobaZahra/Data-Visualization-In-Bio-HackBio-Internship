@@ -1,74 +1,68 @@
 library(shiny)
+bacteria_data <- read.delim(file = 'E:/Data-Visualization-In-Bio-HackBio-Internship/2. Data Visualisation with R/bacteria.csv',
+                            sep = ",", header = TRUE)
 
-
-bacteria_data <- read.csv(file = 'E:/Data-Visualization-In-Bio-HackBio-Internship/2. Data Visualisation with R/bacteria.csv', header = T)
-
-# Define UI for application that draws a histogram
 ui <- fluidPage(
-  
-  # Application title
-  titlePanel("Simple Bacteria Data"),
-  
-  # Sidebar with a slider input for number of bins 
+  titlePanel("HackBio Bacteria Dataset"),
   sidebarLayout(
     sidebarPanel(
-      
-      selectInput(inputId = "x_axis",
-                  label = "Select X axis: ",
-                  choices = colnames(bacteria_data),
-                  selected = 'C1' ),
-      
-      selectInput(inputId = "y_axis",
-                  label = "Select Y axis: ",
-                  choices = colnames(bacteria_data),
-                  selected = 'C2' ),
-      
-      selectInput(inputId = "isolation_Source",
-                  label = "Select Isolation Source",
-                  choices = unique(bacteria_data$Isolation.origin),
-                  selected = 'species' ),
-      
-      selectInput(inputId = "color",
-                  label = "Select Color: ",
-                  choices = colnames(bacteria_data),
-                  selected = 'labels' )
+      selectInput('x_axis', 'Select X axis:',
+                  choices = colnames(bacteria_data)[c(1,2,8,9,10,11,12,13)],
+                  selected = 'C1'),
+      selectInput('y_axis', 'Select Y axis:',
+                  choices = colnames(bacteria_data)[c(1,2,8,9,10,11,12,13)],
+                  selected = 'C2'),
+      selectInput('color', 'Select Coloring Parameters:',
+                  choices = colnames(bacteria_data)[c(3,4,5,6,7,14)],
+                  selected = 'labels')
     ),
-    
-    # Show a plot of the generated distribution
     mainPanel(
-      plotOutput("scatter_plot"),
-      plotOutput("scatter_plot_2")
+      plotOutput(outputId = 'scatter_plot'),# ✅ inside sidebarLayout
+      plotOutput(outputId = 'scatter_plot_2'),
+      plotOutput(outputId = 'density_plot')
     )
+    
   )
 )
 
-# Define server logic required to draw a histogram
 server <- function(input, output) {
-  
-  data_to_plot <- reactive({
-    subset(bacteria_data, Isolation.origin == input$isolation_Source)
-  })
-  
   output$scatter_plot <- renderPlot({
-    plot(x = data_to_plot()[[input$x_axis]], 
-         y = data_to_plot()[[input$y_axis]],
-         col = as.factor(data_to_plot()[[input$color]]),
-         pch = 19,
-         cex = 1.5,
-         ylab = input$y_axis,
-         xlab = input$x_axis)
+    x_value   <- bacteria_data[[input$x_axis]]
+    y_value   <- bacteria_data[[input$y_axis]]
+    col_value <- as.factor(bacteria_data[[input$color]])
+    bg_colors <- palette()[as.integer(col_value)]     # ✅ valid colors
+    
+    plot(x = x_value, y = y_value,
+         col  = 'black',
+         main = paste0('Scatter Plot of ', input$x_axis, ' vs ', input$y_axis),
+         bg   = bg_colors,
+         pch  = 21, cex = 1.5,
+         xlab = input$x_axis, ylab = input$y_axis)
   })
   
   output$scatter_plot_2 <- renderPlot({
-    plot(x = data_to_plot()[[input$y_axis]], 
-         y = data_to_plot()[[input$x_axis]],
-         col = as.factor(data_to_plot()[[input$color]]),
-         pch = 19,
-         cex = 1.5,
-         ylab = input$y_axis,
-         xlab = input$x_axis)
+    x_value <- bacteria_data[[input$y_axis]]
+    y_value <- bacteria_data[[input$x_axis]]
+    col_value <- as.factor(bacteria_data[[input$color]])
+    bg_colors <- palette()[as.integer(col_value)]
+    
+    plot(x=x_value, y= y_value,
+         col = 'black',
+         main = paste0('Scatter Plot of ', input$y_axis, ' vs ', input$x_axis),         bg = bg_colors,
+         pch = 21, cex = 1.5,
+         xlab = input$y_axis , ylab = input$x_axis
+         )
+  })
+  
+  output$density_plot <- renderPlot({
+    
+    x_value <- bacteria_data[[input$x_axis]]
+    y_value <- bacteria_data[[input$y_axis]]
+    
+    plot(density(x_value , na.rim = T))
+    
   })
 }
 
-# Run the application 
 shinyApp(ui = ui, server = server)
+
